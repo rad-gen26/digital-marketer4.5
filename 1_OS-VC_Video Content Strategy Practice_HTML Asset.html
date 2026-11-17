@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Content Strategy Drag-and-Drop Activity</title>
+  <!-- Google Fonts: Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- Adobe Typekit: azo-sans-web -->
+  <link rel="stylesheet" href="https://use.typekit.net/af/008a6d/00000000000000003b9b1287/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3">
+  
+  <style>
+    /* BRAND COLOURS & CSS CUSTOM PROPERTIES */
+    :root {
+      /* Primary Palette */
+      --color-blue-0: #0074B9;
+      --color-blue-1: #00619A;
+      --color-blue-2: #2B8BC5;
+      --color-blue-3: #80B9DC;
+      --color-green-0: #32B34D;
+      --color-green-1: #1D8F35;
+      --color-green-2: #50C268;
+      --color-green-3: #7CD18E;
+      --color-black-0: #001725;
+      --color-black-1: #2B3E49;
+      --color-black-2: #808B92;
+      /* Supporting Palette */
+      --color-bg-light: #F5F9FC;
+      --color-border-blue: #D0DFED;
+      --color-blue-dark: #055586;
+      --color-bg-gray: #EDF2F6;
+      /* Secondary Palette */
+      --color-alert-red: #F14D5C;
+      --color-highlight-orange: #FC8905;
+      --color-highlight-yellow: #FCDE05;
+      --color-highlight-purple: #A778FD;
+      --color-highlight-cyan: #00BEFF;
+      
+      /* Typography */
+      --font-heading: "azo-sans-web", "Roboto", sans-serif;
+      --font-body: "Roboto", sans-serif;
+    }
+
+    /* BASE STYLES */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-black-0);
+      background-color: var(--color-bg-gray);
+      padding: 20px;
+    }
+
+    .activity-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 24px;
+      border: 1px solid var(--color-border-blue);
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      color: var(--color-black-0);
+      margin-bottom: 12px;
+    }
+
+    .instruction-text {
+      font-size: 16px;
+      color: var(--color-black-1);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    /* SCOREBOARD & CONTROLS */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-bg-light);
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--color-border-blue);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .status-count {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--color-black-0);
+    }
+
+    .btn-reset {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: var(--color-blue-0);
+      border: 2px solid var(--color-blue-1);
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      background-color: var(--color-blue-1);
+    }
+
+    .btn-reset:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+    }
+
+    /* FEEDBACK & LIVE REGION */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .feedback-banner {
+      min-height: 24px;
+      margin-bottom: 16px;
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .feedback-banner.incorrect {
+      color: var(--color-black-0);
+      background-color: #FEE8EA;
+      border: 1px solid var(--color-alert-red);
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    .feedback-banner.completion {
+      color: #ffffff;
+      background-color: var(--color-green-1);
+      padding: 14px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 18px;
+    }
+
+    /* TWO COLUMN LAYOUT (COLLAPSED BELOW 1100PX) */
+    .activity-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1100px) {
+      .activity-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      color: var(--color-blue-dark);
+      margin-bottom: 12px;
+    }
+
+    /* UNPLACED POOL & ITEM STYLING */
+    .pool-container {
+      background-color: var(--color-bg-light);
+      border: 2px dashed var(--color-border-blue);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .draggable-item {
+      background-color: #ffffff;
+      border: 2px solid var(--color-blue-0);
+      border-radius: 6px;
+      padding: 14px;
+      cursor: grab;
+      user-select: none;
+      font-size: 15px;
+      color: var(--color-black-0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    .draggable-item:hover {
+      border-color: var(--color-blue-1);
+      background-color: var(--color-bg-light);
+    }
+
+    .draggable-item:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 3px;
+    }
+
+    .draggable-item.selected {
+      border-color: var(--color-highlight-orange);
+      background-color: #FFF9F2;
+      outline: 3px solid var(--color-highlight-orange);
+    }
+
+    .draggable-item.dragging {
+      opacity: 0.5;
+    }
+
+    .draggable-item.fixed {
+      cursor: default;
+      border: 2px solid var(--color-green-1);
+      background-color: var(--color-bg-light);
+    }
+
+    /* DROP ZONES */
+    .zones-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .drop-zone {
+      background-color: #ffffff;
+      border: 2px solid var(--color-black-2);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 120px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .drop-zone:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 3px;
+    }
+
+    .drop-zone.drag-over {
+      background-color: var(--color-bg-light);
+      border-color: var(--color-blue-0);
+      border-style: dashed;
+    }
+
+    .zone-header {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-blue-1);
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--color-border-blue);
+    }
+
+    .zone-contents {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* CORRECT ITEM FEEDBACK INSIDE ZONE */
+    .feedback-correct {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background-color: #EAF7ED;
+      border-left: 4px solid var(--color-green-1);
+      font-size: 14px;
+      color: var(--color-black-0);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .feedback-correct-tag {
+      font-weight: 700;
+      color: var(--color-green-1);
+      display: inline-block;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="activity-container">
+    <header>
+      <h1 id="activity-title">Video Content Strategy Practice</h1>
+      <p id="instruction" class="instruction-text"></p>
+    </header>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div id="status-count" class="status-count" aria-live="polite"></div>
+      <button id="btn-reset" class="btn-reset" type="button"></button>
+    </div>
+
+    <!-- Live Region for Screen Reader Announcements -->
+    <div id="sr-announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+    <!-- Visual Feedback Message Banner -->
+    <div id="feedback-banner" class="feedback-banner" aria-hidden="true"></div>
+
+    <!-- Activity Main Layout -->
+    <div class="activity-layout">
+      <!-- Unplaced Items Pool -->
+      <section aria-labelledby="pool-heading">
+        <h2 id="pool-heading" class="section-title">Descriptions Pool</h2>
+        <div id="unplaced-pool" class="pool-container" role="region" aria-label="Unplaced descriptions pool"></div>
+      </section>
+
+      <!-- Target Drop Zones -->
+      <section aria-labelledby="zones-heading">
+        <h2 id="zones-heading" class="section-title">Strategies</h2>
+        <div id="zones-container" class="zones-container"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       DATA BLOCK & TEXT STRINGS (Single Architecture for Easy Translation)
+       ========================================================================== */
+    const S = {
+      title: "Video Content Strategy Practice",
+      instruction: "Drag each description into the strategy it shows.",
+      countTemplate: "{count} of {total} placed correctly",
+      btnReset: "Start again",
+      msgIncorrect: "Not quite, try another strategy",
+      msgCompletion: "Well done! You have matched every description to its strategy.",
+      correctTag: "Correct",
+      keyboardSelected: "Selected item: {text}. Now focus a drop zone and press Enter or Space to place it. Press Escape to cancel.",
+      keyboardCancelled: "Selection cancelled.",
+      zoneLabel: "Drop zone: {name}",
+      itemInstruction: ". Press Enter or Space to select for moving."
+    };
+
+    /* Scenarios data block: Item text, target zone, and explanation */
+    const SCENARIOS = [
+      {
+        id: "item-1",
+        text: "The video opens with the finished cake being cut, before showing how it was made.",
+        zone: "Hook",
+        explanation: "Showing the result first gives viewers a reason to stay in the first 1-3 seconds."
+      },
+      {
+        id: "item-2",
+        text: "The video opens with a question to the viewer: “Have you ever tasted a cake this good?”",
+        zone: "Hook",
+        explanation: "Asking a question straight away gives viewers a reason to stay in the first 1-3 seconds."
+      },
+      {
+        id: "item-3",
+        text: "At 0:04 the video zooms sharply into the product and the music changes.",
+        zone: "Pattern interrupt",
+        explanation: "A sudden change in visuals and sound pulls drifting attention back."
+      },
+      {
+        id: "item-4",
+        text: "Halfway through, a new voice joins the video.",
+        zone: "Pattern interrupt",
+        explanation: "A new voice is a sudden change that pulls drifting attention back."
+      },
+      {
+        id: "item-5",
+        text: "A customer films herself on her phone: “I tried this for a week...”",
+        zone: "User-generated content (UGC)",
+        explanation: "It is made by a real customer, not a brand's production team, so it feels like a friend talking."
+      },
+      {
+        id: "item-6",
+        text: "A fan posts a reaction video to a bakery’s new cake.",
+        zone: "User-generated content (UGC)",
+        explanation: "It is made by a fan, not a brand's production team, so it feels like a friend talking."
+      }
+    ];
+
+    const ZONES = [
+      "Hook",
+      "Pattern interrupt",
+      "User-generated content (UGC)"
+    ];
+
+    /* ==========================================================================
+       APP STATE
+       ========================================================================== */
+    let state = {
+      placedCount: 0,
+      selectedItemId: null,
+      placements: {} // Maps itemId -> zoneName when placed correctly
+    };
+
+    /* ==========================================================================
+       DOM ELEMENTS & INITIALIZATION
+       ========================================================================== */
+    const instructionEl = document.getElementById("instruction");
+    const statusCountEl = document.getElementById("status-count");
+    const btnReset = document.getElementById("btn-reset");
+    const poolEl = document.getElementById("unplaced-pool");
+    const zonesContainerEl = document.getElementById("zones-container");
+    const srAnnouncer = document.getElementById("sr-announcer");
+    const feedbackBanner = document.getElementById("feedback-banner");
+
+    function initApp() {
+      instructionEl.textContent = S.instruction;
+      btnReset.textContent = S.btnReset;
+      btnReset.addEventListener("click", resetActivity);
+      
+      renderZones();
+      resetActivity();
+    }
+
+    /* Helper: Shuffle array randomly */
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    /* Helper: Announce text to screen readers */
+    function announce(text) {
+      srAnnouncer.textContent = "";
+      setTimeout(() => {
+        srAnnouncer.textContent = text;
+      }, 50);
+    }
+
+    /* Update Count Display */
+    function updateCountDisplay() {
+      const text = S.countTemplate
+        .replace("{count}", state.placedCount)
+        .replace("{total}", SCENARIOS.length);
+      statusCountEl.textContent = text;
+    }
+
+    /* ==========================================================================
+       RENDER FUNCTIONS
+       ========================================================================== */
+    function renderZones() {
+      zonesContainerEl.innerHTML = "";
+      ZONES.forEach(zoneName => {
+        const zoneEl = document.createElement("div");
+        zoneEl.className = "drop-zone";
+        zoneEl.dataset.zone = zoneName;
+        zoneEl.setAttribute("tabindex", "0");
+        zoneEl.setAttribute("role", "region");
+        zoneEl.setAttribute("aria-label", S.zoneLabel.replace("{name}", zoneName));
+
+        const header = document.createElement("div");
+        header.className = "zone-header";
+        header.textContent = zoneName;
+
+        const contents = document.createElement("div");
+        contents.className = "zone-contents";
+        contents.id = `zone-contents-${slugify(zoneName)}`;
+
+        zoneEl.appendChild(header);
+        zoneEl.appendChild(contents);
+
+        // Drag & Drop event listeners for zones
+        zoneEl.addEventListener("dragover", handleDragOver);
+        zoneEl.addEventListener("dragleave", handleDragLeave);
+        zoneEl.addEventListener("drop", handleDrop);
+
+        // Keyboard interaction for zone drop target
+        zoneEl.addEventListener("keydown", (e) => handleZoneKeyDown(e, zoneName));
+
+        zonesContainerEl.appendChild(zoneEl);
+      });
+    }
+
+    function slugify(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]/g, "-");
+    }
+
+    function resetActivity() {
+      state.placedCount = 0;
+      state.selectedItemId = null;
+      state.placements = {};
+      
+      feedbackBanner.textContent = "";
+      feedbackBanner.className = "feedback-banner";
+
+      updateCountDisplay();
+
+      // Clear zones
+      ZONES.forEach(zoneName => {
+        const contents = document.getElementById(`zone-contents-${slugify(zoneName)}`);
+        if (contents) contents.innerHTML = "";
+      });
+
+      // Clear and render unplaced items in random order
+      poolEl.innerHTML = "";
+      const shuffled = shuffle(SCENARIOS);
+      
+      shuffled.forEach(itemData => {
+        const itemEl = createItemElement(itemData);
+        poolEl.appendChild(itemEl);
+      });
+
+      announce("Activity reset. All items returned to pool.");
+    }
+
+    function createItemElement(itemData) {
+      const el = document.createElement("div");
+      el.className = "draggable-item";
+      el.id = itemData.id;
+      el.dataset.id = itemData.id;
+      el.dataset.zone = itemData.zone;
+      el.setAttribute("draggable", "true");
+      el.setAttribute("tabindex", "0");
+      el.setAttribute("role", "button");
+      el.setAttribute("aria-label", itemData.text + S.itemInstruction);
+
+      el.textContent = itemData.text;
+
+      // Mouse Drag Events
+      el.addEventListener("dragstart", handleDragStart);
+      el.addEventListener("dragend", handleDragEnd);
+
+      // Keyboard & Click Events
+      el.addEventListener("click", () => handleItemSelect(itemData.id));
+      el.addEventListener("keydown", (e) => handleItemKeyDown(e, itemData.id));
+
+      return el;
+    }
+
+    /* ==========================================================================
+       DRAG & DROP LOGIC (MOUSE & TOUCH)
+       ========================================================================== */
+    function handleDragStart(e) {
+      e.dataTransfer.setData("text/plain", e.target.dataset.id);
+      e.target.classList.add("dragging");
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove("dragging");
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add("drag-over");
+    }
+
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove("drag-over");
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const zoneEl = e.currentTarget;
+      zoneEl.classList.remove("drag-over");
+      const itemId = e.dataTransfer.getData("text/plain");
+      const targetZone = zoneEl.dataset.zone;
+      
+      if (itemId) {
+        processPlacement(itemId, targetZone);
+      }
+    }
+
+    /* ==========================================================================
+       KEYBOARD ACCESSIBILITY LOGIC
+       ========================================================================== */
+    function handleItemSelect(itemId) {
+      const itemEl = document.getElementById(itemId);
+      if (!itemEl || itemEl.classList.contains("fixed")) return;
+
+      if (state.selectedItemId === itemId) {
+        // Deselect
+        state.selectedItemId = null;
+        itemEl.classList.remove("selected");
+        announce(S.keyboardCancelled);
+      } else {
+        // Clear existing selection
+        if (state.selectedItemId) {
+          const prev = document.getElementById(state.selectedItemId);
+          if (prev) prev.classList.remove("selected");
+        }
+        state.selectedItemId = itemId;
+        itemEl.classList.add("selected");
+        
+        const scenario = SCENARIOS.find(s => s.id === itemId);
+        announce(S.keyboardSelected.replace("{text}", scenario.text));
+      }
+    }
+
+    function handleItemKeyDown(e, itemId) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleItemSelect(itemId);
+      } else if (e.key === "Escape" && state.selectedItemId === itemId) {
+        e.preventDefault();
+        handleItemSelect(itemId);
+      }
+    }
+
+    function handleZoneKeyDown(e, zoneName) {
+      if ((e.key === "Enter" || e.key === " ") && state.selectedItemId) {
+        e.preventDefault();
+        processPlacement(state.selectedItemId, zoneName);
+      }
+    }
+
+    /* ==========================================================================
+       PLACEMENT EVALUATION & FEEDBACK
+       ========================================================================== */
+    function processPlacement(itemId, targetZone) {
+      const scenario = SCENARIOS.find(s => s.id === itemId);
+      const itemEl = document.getElementById(itemId);
+
+      if (!scenario || !itemEl || itemEl.classList.contains("fixed")) return;
+
+      // Clear previous selection state if any
+      if (state.selectedItemId === itemId) {
+        state.selectedItemId = null;
+        itemEl.classList.remove("selected");
+      }
+
+      if (scenario.zone === targetZone) {
+        // CORRECT PLACEMENT
+        state.placedCount += 1;
+        state.placements[itemId] = targetZone;
+
+        // Fix item properties
+        itemEl.classList.add("fixed");
+        itemEl.removeAttribute("draggable");
+        itemEl.removeAttribute("tabindex");
+        itemEl.setAttribute("aria-label", scenario.text + " - Placed correctly in " + targetZone);
+
+        // Append feedback text inside item
+        const feedbackDiv = document.createElement("div");
+        feedbackDiv.className = "feedback-correct";
+        feedbackDiv.innerHTML = `<span class="feedback-correct-tag">${S.correctTag}:</span>${scenario.explanation}`;
+        itemEl.appendChild(feedbackDiv);
+
+        // Move item into target zone contents
+        const targetZoneContents = document.getElementById(`zone-contents-${slugify(targetZone)}`);
+        targetZoneContents.appendChild(itemEl);
+
+        // Reset visual banner
+        feedbackBanner.textContent = "";
+        feedbackBanner.className = "feedback-banner";
+
+        updateCountDisplay();
+
+        if (state.placedCount === SCENARIOS.length) {
+          // Final Completion State
+          feedbackBanner.textContent = S.msgCompletion;
+          feedbackBanner.className = "feedback-banner completion";
+          announce(S.correctTag + ". " + scenario.explanation + " " + S.msgCompletion);
+        } else {
+          announce(S.correctTag + ". " + scenario.explanation + " " + S.countTemplate.replace("{count}", state.placedCount).replace("{total}", SCENARIOS.length));
+        }
+
+      } else {
+        // INCORRECT PLACEMENT
+        // Return item to pool
+        poolEl.appendChild(itemEl);
+        
+        feedbackBanner.textContent = S.msgIncorrect;
+        feedbackBanner.className = "feedback-banner incorrect";
+
+        announce(S.msgIncorrect);
+      }
+    }
+
+    // Initialize Activity on DOM Load
+    document.addEventListener("DOMContentLoaded", initApp);
+  </script>
+</body>
+</html>
