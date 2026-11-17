@@ -163,17 +163,36 @@
       font-size: 18px;
     }
 
-    /* TWO COLUMN LAYOUT (COLLAPSED BELOW 1100PX) */
+    /* TWO COLUMN LAYOUT (ALWAYS SIDE BY SIDE, AT EVERY WIDTH) */
     .activity-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 24px;
+      align-items: start;
     }
 
-    @media (max-width: 1100px) {
-      .activity-layout {
-        grid-template-columns: 1fr;
-      }
+    .activity-layout > section {
+      min-width: 0;
+    }
+
+    /* Narrow containers (e.g. Canvas content area, phones): shrink spacing and text, never the column count */
+    @media (max-width: 800px) {
+      body { padding: 8px; }
+      .activity-container { padding: 12px; }
+      .activity-layout { gap: 10px; }
+      .section-title { font-size: 16px; margin-bottom: 8px; }
+      .pool-container { padding: 8px; gap: 8px; min-height: 250px; }
+      .draggable-item { padding: 8px; font-size: 13px; }
+      .drop-zone { padding: 8px; min-height: 90px; }
+      .zones-container { gap: 10px; }
+      .zone-header { font-size: 14px; }
+      .feedback-correct { padding: 6px 8px; font-size: 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .activity-layout { gap: 6px; }
+      .draggable-item { padding: 6px; font-size: 12px; }
+      .zone-header { font-size: 13px; }
     }
 
     .section-title {
@@ -202,6 +221,8 @@
       padding: 14px;
       cursor: grab;
       user-select: none;
+      min-width: 0;
+      overflow-wrap: anywhere;
       font-size: 15px;
       color: var(--color-black-0);
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -247,6 +268,8 @@
       border-radius: 8px;
       padding: 16px;
       min-height: 120px;
+      min-width: 0;
+      overflow-wrap: anywhere;
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
@@ -284,6 +307,7 @@
       background-color: #EAF7ED;
       border-left: 4px solid var(--color-green-1);
       font-size: 14px;
+      overflow-wrap: anywhere;
       color: var(--color-black-0);
       border-radius: 0 4px 4px 0;
     }
