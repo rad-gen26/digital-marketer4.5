@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Profile Explorer</title>
+  
+  <!-- APPROVED FONTS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/af/008a6d/00000000000000003b9b1287/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3">
+
+  <style>
+    /* ==========================================================================
+       CSS CUSTOM PROPERTIES (STRICT DESIGN SYSTEM PALETTE)
+       ========================================================================== */
+    :root {
+      /* Primary Blues */
+      --color-blue-0: #0074B9;
+      --color-blue-1: #00619A;
+      --color-blue-2: #2B8BC5;
+      --color-blue-3: #80B9DC;
+      
+      /* Primary Greens */
+      --color-green-0: #32B34D;
+      --color-green-1: #1D8F35;
+      --color-green-2: #50C268;
+      --color-green-3: #7CD18E;
+      
+      /* Primary Blacks/Grays */
+      --color-black-0: #001725;
+      --color-black-1: #2B3E49;
+      --color-black-2: #808B92;
+      
+      /* Supporting Palette */
+      --color-bg-light: #F5F9FC;
+      --color-border-blue: #D0DFED;
+      --color-blue-dark: #055586;
+      --color-bg-gray: #EDF2F6;
+      
+      /* Secondary Highlights (Non-text use only) */
+      --color-alert-red: #F14D5C;
+      --color-highlight-orange: #FC8905;
+      --color-highlight-yellow: #FCDE05;
+      --color-highlight-purple: #A778FD;
+      --color-highlight-cyan: #00BEFF;
+
+      /* Typography */
+      --font-heading: "azo-sans-web", "Roboto", sans-serif;
+      --font-body: "Roboto", Arial, sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-black-0);
+      background-color: var(--color-bg-gray);
+      padding: 16px;
+    }
+
+    .app-container {
+      max-width: 1050px;
+      min-width: 320px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 24px;
+      border: 1px solid var(--color-border-blue);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Header & Note */
+    header {
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--color-border-blue);
+      padding-bottom: 16px;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 8px;
+    }
+
+    .instructions {
+      font-size: 16px;
+      color: var(--color-black-1);
+      margin-bottom: 12px;
+    }
+
+    .disclaimer-note {
+      display: inline-block;
+      font-size: 14px;
+      color: var(--color-black-1);
+      background-color: var(--color-bg-light);
+      border-left: 4px solid var(--color-blue-2);
+      padding: 4px 12px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Status Bar & Controls */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-bg-light);
+      border: 1px solid var(--color-border-blue);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .counter-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-black-0);
+    }
+
+    .btn-reset {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: var(--color-blue-0);
+      border: 2px solid var(--color-blue-1);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      background-color: var(--color-blue-1);
+    }
+
+    .btn-reset:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+    }
+
+    /* Layout (Collapses below 1100px) */
+    .explorer-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 1099px) {
+      .explorer-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==========================================================================
+       TIKTOK-STYLE PHONE MOCK-UP
+       ========================================================================== */
+    .phone-mockup {
+      background-color: #ffffff;
+      border: 3px solid var(--color-black-1);
+      border-radius: 36px;
+      padding: 12px 12px 20px 12px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Phone Top Notch & Status Bar */
+    .phone-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 12px 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-black-0);
+    }
+
+    .phone-notch {
+      width: 90px;
+      height: 10px;
+      background-color: var(--color-black-1);
+      border-radius: 5px;
+      margin: 0 auto;
+    }
+
+    /* Profile Top Navigation Bar */
+    .tt-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px 12px 4px;
+      border-bottom: 1px solid var(--color-border-blue);
+      margin-bottom: 12px;
+    }
+
+    .tt-nav-title {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-black-0);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tt-nav-icons {
+      display: flex;
+      gap: 12px;
+      color: var(--color-black-0);
+    }
+
+    /* Selectable Area Button Styling */
+    .area-btn {
+      width: 100%;
+      background-color: #ffffff;
+      border: 2px dashed var(--color-blue-2);
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      cursor: pointer;
+      font-family: var(--font-body);
+      color: var(--color-black-0);
+      position: relative;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+      min-height: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .area-btn:hover {
+      background-color: var(--color-bg-light);
+      border-color: var(--color-blue-0);
+    }
+
+    .area-btn:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+    }
+
+    /* Selected State: Thick border + "Selected" badge */
+    .area-btn.selected {
+      border: 3px solid var(--color-black-0) !important;
+      background-color: #D6E8F5 !important;
+    }
+
+    /* Badges */
+    .state-badges {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .state-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .badge-selected {
+      background-color: var(--color-black-0);
+      color: #ffffff;
+    }
+
+    .badge-explored {
+      background-color: var(--color-green-1);
+      color: #ffffff;
+    }
+
+    /* Mockup Item 1: Profile Photo */
+    .tt-avatar-wrapper {
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+
+    .profile-photo-svg {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--color-border-blue);
+    }
+
+    .tt-add-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 22px;
+      height: 22px;
+      background-color: var(--color-blue-0);
+      color: #ffffff;
+      border-radius: 50%;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #ffffff;
+    }
+
+    /* Mockup Item 2: Handle & Display Name */
+    .tt-display-name {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 17px;
+      color: var(--color-black-0);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tt-username {
+      font-size: 13px;
+      color: var(--color-black-1);
+    }
+
+    /* TikTok Stats Row (Followers, Following, Likes) */
+    .tt-stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      padding: 4px 0 10px 0;
+      border-bottom: 1px solid var(--color-bg-gray);
+      margin-bottom: 8px;
+      width: 100%;
+    }
+
+    .tt-stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .tt-stat-num {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-black-0);
+    }
+
+    .tt-stat-label {
+      font-size: 11px;
+      color: var(--color-black-2);
+    }
+
+    /* Mockup Item 3: Category */
+    .category-tag {
+      font-size: 12px;
+      font-weight: 700;
+      background-color: var(--color-bg-light);
+      color: var(--color-blue-dark);
+      border: 1px solid var(--color-border-blue);
+      padding: 3px 12px;
+      border-radius: 12px;
+    }
+
+    /* Mockup Item 6: Bio */
+    .bio-text {
+      font-size: 13px;
+      color: var(--color-black-0);
+      line-height: 1.4;
+      max-width: 280px;
+    }
+
+    /* Mockup Item 4: Action Buttons */
+    .tt-action-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .tt-btn-action {
+      flex: 1;
+      background-color: var(--color-blue-0);
+      color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* TikTok Content Tabs Header */
+    .tt-tabs-header {
+      display: flex;
+      justify-content: space-around;
+      border-bottom: 1px solid var(--color-border-blue);
+      padding-bottom: 6px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      width: 100%;
+    }
+
+    .tt-tab {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-black-2);
+      padding-bottom: 4px;
+      position: relative;
+    }
+
+    .tt-tab.active {
+      color: var(--color-black-0);
+      border-bottom: 2px solid var(--color-black-0);
+    }
+
+    /* Mockup Item 5: Pinned Video Grid */
+    .tt-pinned-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      width: 100%;
+    }
+
+    .tt-video-tile {
+      background-color: var(--color-black-1);
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 6px;
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tt-pinned-badge {
+      background-color: var(--color-blue-0);
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 4px;
+      border-radius: 3px;
+      align-self: flex-start;
+    }
+
+    .tt-video-caption {
+      font-size: 11px;
+      line-height: 1.2;
+      font-weight: 500;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    .tt-video-stats {
+      font-size: 10px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      color: #ffffff;
+      opacity: 0.9;
+    }
+
+    /* TikTok Bottom Nav Bar Mockup */
+    .tt-bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding-top: 10px;
+      margin-top: 8px;
+      border-top: 1px solid var(--color-border-blue);
+      font-size: 10px;
+      color: var(--color-black-2);
+      width: 100%;
+    }
+
+    .tt-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .tt-nav-item.active {
+      color: var(--color-black-0);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       RIGHT COLUMN: INFORMATION PANEL & ALT LIST
+       ========================================================================== */
+    .info-panel {
+      background-color: var(--color-bg-light);
+      border: 2px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 240px;
+      margin-bottom: 24px;
+    }
+
+    .panel-default-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-black-1);
+    }
+
+    .panel-title {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      color: var(--color-blue-0);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--color-border-blue);
+    }
+
+    .info-section {
+      margin-bottom: 16px;
+    }
+
+    .info-label {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-black-0);
+      margin-bottom: 4px;
+    }
+
+    .info-body {
+      font-size: 15px;
+      color: var(--color-black-1);
+    }
+
+    .completion-banner {
+      margin-top: 16px;
+      padding: 12px;
+      background-color: var(--color-green-1);
+      color: #ffffff;
+      font-weight: 700;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    /* "Choose an area" List Buttons */
+    .alt-list-container {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .alt-list-title {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      color: var(--color-black-0);
+      margin-bottom: 12px;
+    }
+
+    .alt-buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 10px;
+    }
+
+    .list-btn {
+      font-family: var(--font-body);
+      font-size: 14px;
+      text-align: left;
+      background-color: var(--color-bg-light);
+      border: 2px solid var(--color-blue-2);
+      color: var(--color-black-0);
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .list-btn:hover {
+      background-color: #E2EFF7;
+      border-color: var(--color-blue-0);
+    }
+
+    .list-btn:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+    }
+
+    .list-btn.selected {
+      border: 3px solid var(--color-black-0) !important;
+      background-color: #D6E8F5 !important;
+      font-weight: 700;
+    }
+
+    /* Accessible Live Region */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Motion settings */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1 id="app-heading">Explore a business profile</h1>
+      <p id="app-instructions" class="instructions">Select each highlighted area to see what to set up and why.</p>
+      <div id="app-disclaimer" class="disclaimer-note">Fictional example for learning only.</div>
+    </header>
+
+    <!-- Status Bar & Controls -->
+    <div class="status-bar">
+      <div id="counter-display" class="counter-text" aria-live="polite">Explored 0 of 6 areas</div>
+      <button id="btn-reset" class="btn-reset" type="button">Start again</button>
+    </div>
+
+    <!-- Screen Reader Live Region -->
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Main Layout -->
+    <div class="explorer-layout">
+      
+      <!-- LEFT COLUMN: TikTok-style Phone Mockup with 6 Selectable Buttons -->
+      <section aria-label="Business Profile Mockup" class="phone-mockup">
+        
+        <!-- Phone Top Notch & Status Header -->
+        <div class="phone-notch"></div>
+        <div class="phone-header-bar">
+          <span>9:41</span>
+          <div style="display: flex; gap: 4px;">
+            <svg width="14" height="10" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><path d="M0 12h16V0z"/></svg>
+            <svg width="14" height="10" viewBox="0 0 16 12" fill="currentColor" aria-hidden="true"><rect x="0" y="2" width="12" height="8" rx="1"/><rect x="13" y="4" width="2" height="4" rx="0.5"/></svg>
+          </div>
+        </div>
+
+        <!-- TikTok Navigation Header -->
+        <div class="tt-nav-bar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          <div class="tt-nav-title">
+            Sweet Corner Bakery
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </div>
+          <div class="tt-nav-icons">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </div>
+        </div>
+
+        <!-- Area 1: Profile photo or logo -->
+        <button id="mockup-area-1" class="area-btn" type="button" onclick="selectArea(1)">
+          <div class="tt-avatar-wrapper">
+            <svg class="profile-photo-svg" viewBox="0 0 100 100" aria-hidden="true">
+              <circle cx="50" cy="50" r="48" fill="#0074B9"/>
+              <path d="M 30 55 Q 50 35 70 55 L 65 75 Q 50 80 35 75 Z" fill="#ffffff"/>
+              <circle cx="50" cy="35" r="8" fill="#FCDE05"/>
+            </svg>
+            <div class="tt-add-badge">+</div>
+          </div>
+          <div id="badge-area-1" class="state-badges"></div>
+        </button>
+
+        <!-- Area 2: Username and display name -->
+        <button id="mockup-area-2" class="area-btn" type="button" onclick="selectArea(2)">
+          <span class="tt-display-name">
+            Sweet Corner Bakery
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#0074B9" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+          <span class="tt-username">@sweetcornerbakery</span>
+          <div id="badge-area-2" class="state-badges"></div>
+        </button>
+
+        <!-- TikTok Profile Followers/Likes Stats Row (Decorative context) -->
+        <div class="tt-stats-row" aria-hidden="true">
+          <div class="tt-stat-item"><span class="tt-stat-num">142</span><span class="tt-stat-label">Following</span></div>
+          <div class="tt-stat-item"><span class="tt-stat-num">2.8K</span><span class="tt-stat-label">Followers</span></div>
+          <div class="tt-stat-item"><span class="tt-stat-num">18.4K</span><span class="tt-stat-label">Likes</span></div>
+        </div>
+
+        <!-- Area 3: Business category -->
+        <button id="mockup-area-3" class="area-btn" type="button" onclick="selectArea(3)">
+          <span class="category-tag">Bakery</span>
+          <div id="badge-area-3" class="state-badges"></div>
+        </button>
+
+        <!-- Area 6: Bio -->
+        <button id="mockup-area-6" class="area-btn" type="button" onclick="selectArea(6)">
+          <span class="bio-text">Fresh cakes and bread, baked daily. Order ahead and collect in store.</span>
+          <div id="badge-area-6" class="state-badges"></div>
+        </button>
+
+        <!-- Area 4: Email or website button -->
+        <button id="mockup-area-4" class="area-btn" type="button" onclick="selectArea(4)">
+          <div class="tt-action-row">
+            <span class="tt-btn-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Email
+            </span>
+            <span class="tt-btn-action">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              Website
+            </span>
+          </div>
+          <div id="badge-area-4" class="state-badges"></div>
+        </button>
+
+        <!-- TikTok Content Tabs Header -->
+        <div class="tt-tabs-header" aria-hidden="true">
+          <div class="tt-tab active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h7v7H3zm11 0h7v7h-7zm0 11h7v7h-7zM3 14h7v7H3z"/></svg>
+          </div>
+          <div class="tt-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+          <div class="tt-tab">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H7c-1.1 0-1.99.9-1.99 2L5 21l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+          </div>
+        </div>
+
+        <!-- Area 5: Pinned videos -->
+        <button id="mockup-area-5" class="area-btn" type="button" onclick="selectArea(5)">
+          <div class="tt-pinned-grid">
+            <div class="tt-video-tile">
+              <span class="tt-pinned-badge">Pinned</span>
+              <span class="tt-video-caption">Cake being decorated</span>
+              <span class="tt-video-stats">▶ 12.4K</span>
+            </div>
+            <div class="tt-video-tile">
+              <span class="tt-pinned-badge">Pinned</span>
+              <span class="tt-video-caption">Fresh bread from oven</span>
+              <span class="tt-video-stats">▶ 8.1K</span>
+            </div>
+            <div class="tt-video-tile">
+              <span class="tt-pinned-badge">Pinned</span>
+              <span class="tt-video-caption">Meet the baker</span>
+              <span class="tt-video-stats">▶ 15.2K</span>
+            </div>
+          </div>
+          <div id="badge-area-5" class="state-badges"></div>
+        </button>
+
+        <!-- TikTok Bottom Navigation Mockup (Decorative context) -->
+        <div class="tt-bottom-nav" aria-hidden="true">
+          <div class="tt-nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home</div>
+          <div class="tt-nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>Friends</div>
+          <div class="tt-nav-item"><svg width="22" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>Create</div>
+          <div class="tt-nav-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Inbox</div>
+          <div class="tt-nav-item active"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profile</div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Information Panel & Alternative Button List -->
+      <div>
+        <!-- Information Panel -->
+        <section id="info-panel" class="info-panel" role="region" aria-label="Area information" tabindex="-1">
+          <p id="panel-default" class="panel-default-text">Select an area to begin.</p>
+          <div id="panel-content" style="display: none;">
+            <h2 id="panel-heading" class="panel-title"></h2>
+            <div class="info-section">
+              <div class="info-label">What to set up:</div>
+              <div id="panel-setup" class="info-body"></div>
+            </div>
+            <div class="info-section">
+              <div class="info-label">Why it matters:</div>
+              <div id="panel-matters" class="info-body"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Completion Message -->
+        <div id="completion-message" class="completion-banner" style="display: none;" aria-live="polite">
+          You have explored all six areas. Use the Business Profile Planning Checklist to plan your own profile.
+        </div>
+
+        <!-- Choose an Area Button List -->
+        <section class="alt-list-container" aria-label="Choose an area list">
+          <h2 class="alt-list-title">Choose an area</h2>
+          <div id="alt-buttons-grid" class="alt-buttons-grid"></div>
+        </section>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       STRING ARCHITECTURE & DATA BLOCK (Single Source of Truth)
+       ========================================================================== */
+    const S = {
+      heading: "Explore a business profile",
+      instructions: "Select each highlighted area to see what to set up and why.",
+      disclaimer: "Fictional example for learning only.",
+      counterTemplate: "Explored {count} of 6 areas",
+      completionText: "You have explored all six areas. Use the Business Profile Planning Checklist to plan your own profile.",
+      defaultPanelText: "Select an area to begin.",
+      btnStartAgain: "Start again",
+      tagSelected: "Selected",
+      tagExplored: "✓ Explored",
+      tagUnexplored: "Not yet explored"
+    };
+
+    const AREAS_DATA = [
+      {
+        id: 1,
+        name: "Profile photo or logo",
+        whatToSetUp: "Choose a clear image that is easy to recognise at a small size and matches the business’s other channels.",
+        whyItMatters: "It is the first thing people see next to every video and comment."
+      },
+      {
+        id: 2,
+        name: "Username (handle) and display name",
+        whatToSetUp: "Choose a username that is easy to say, spell and search, and a display name people already know. Keep both consistent with the business’s other channels.",
+        whyItMatters: "Customers can find the business and trust that it is the same one they know elsewhere."
+      },
+      {
+        id: 3,
+        name: "Business category",
+        whatToSetUp: "Choose the category that best matches what the business does.",
+        whyItMatters: "It tells TikTok and visitors what kind of business this is."
+      },
+      {
+        id: 4,
+        name: "Email or website button",
+        whatToSetUp: "Add an email address or a website button. Choose the action you most want visitors to take, such as ordering or asking a question.",
+        whyItMatters: "Customers can reach you or take the next step easily."
+      },
+      {
+        id: 5,
+        name: "Pinned videos",
+        whatToSetUp: "Pin your best or most representative videos. TikTok limits how many you can pin, so choose carefully.",
+        whyItMatters: "They are the first thing a new visitor sees. A good pinned video shows what you do and gives a reason to follow."
+      },
+      {
+        id: 6,
+        name: "Bio",
+        whatToSetUp: "Say who you are and what you offer in a few clear words.",
+        whyItMatters: "It supports the items above but doesn’t replace them."
+      }
+    ];
+
+    /* ==========================================================================
+       APPLICATION STATE
+       ========================================================================== */
+    let selectedId = null;
+    let exploredSet = new Set();
+
+    /* ==========================================================================
+       DOM CACHE & INITIALISATION
+       ========================================================================== */
+    const counterEl = document.getElementById("counter-display");
+    const btnReset = document.getElementById("btn-reset");
+    const panelDefault = document.getElementById("panel-default");
+    const panelContent = document.getElementById("panel-content");
+    const panelHeading = document.getElementById("panel-heading");
+    const panelSetup = document.getElementById("panel-setup");
+    const panelMatters = document.getElementById("panel-matters");
+    const completionEl = document.getElementById("completion-message");
+    const srAnnouncer = document.getElementById("sr-announcer");
+    const altButtonsGrid = document.getElementById("alt-buttons-grid");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initAltButtons();
+      btnReset.addEventListener("click", resetActivity);
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && selectedId !== null) {
+          clearSelection();
+          announce("Selection cleared.");
+        }
+      });
+      updateUI();
+    });
+
+    /* Render "Choose an area" button list */
+    function initAltButtons() {
+      altButtonsGrid.innerHTML = "";
+      AREAS_DATA.forEach(area => {
+        const btn = document.createElement("button");
+        btn.id = `list-btn-${area.id}`;
+        btn.className = "list-btn";
+        btn.type = "button";
+        btn.onclick = () => selectArea(area.id);
+        altButtonsGrid.appendChild(btn);
+      });
+    }
+
+    /* Announce message to Screen Readers */
+    function announce(msg) {
+      srAnnouncer.textContent = "";
+      setTimeout(() => {
+        srAnnouncer.textContent = msg;
+      }, 50);
+    }
+
+    /* Select an Area */
+    function selectArea(id) {
+      selectedId = id;
+      exploredSet.add(id);
+      updateUI();
+
+      const area = AREAS_DATA.find(a => a.id === id);
+      if (area) {
+        announce(`${area.name} selected. What to set up: ${area.whatToSetUp} Why it matters: ${area.whyItMatters}`);
+      }
+    }
+
+    /* Clear Selection */
+    function clearSelection() {
+      selectedId = null;
+      updateUI();
+    }
+
+    /* Reset Activity */
+    function resetActivity() {
+      selectedId = null;
+      exploredSet.clear();
+      updateUI();
+      announce("Activity reset. All explored areas cleared.");
+    }
+
+    /* ==========================================================================
+       UI RENDER / STATE UPDATE ENGINE
+       ========================================================================== */
+    function updateUI() {
+      // 1. Update Counter
+      const count = exploredSet.size;
+      counterEl.textContent = S.counterTemplate.replace("{count}", count);
+
+      // 2. Update Completion Message
+      if (count === AREAS_DATA.length) {
+        completionEl.style.display = "block";
+      } else {
+        completionEl.style.display = "none";
+      }
+
+      // 3. Update Information Panel
+      if (selectedId === null) {
+        panelDefault.style.display = "block";
+        panelContent.style.display = "none";
+      } else {
+        const area = AREAS_DATA.find(a => a.id === selectedId);
+        if (area) {
+          panelDefault.style.display = "none";
+          panelContent.style.display = "block";
+          panelHeading.textContent = area.name;
+          panelSetup.textContent = area.whatToSetUp;
+          panelMatters.textContent = area.whyItMatters;
+        }
+      }
+
+      // 4. Update Mockup & List Buttons States and Accessible Names
+      AREAS_DATA.forEach(area => {
+        const mockupBtn = document.getElementById(`mockup-area-${area.id}`);
+        const listBtn = document.getElementById(`list-btn-${area.id}`);
+        const badgeSpan = document.getElementById(`badge-area-${area.id}`);
+
+        const isSelected = (selectedId === area.id);
+        const isExplored = exploredSet.has(area.id);
+
+        // State classes
+        if (isSelected) {
+          mockupBtn.classList.add("selected");
+          if (listBtn) listBtn.classList.add("selected");
+        } else {
+          mockupBtn.classList.remove("selected");
+          if (listBtn) listBtn.classList.remove("selected");
+        }
+
+        // Visible text badges on mockup
+        let badgeHTML = "";
+        if (isSelected) {
+          badgeHTML += `<span class="state-badge badge-selected">${S.tagSelected}</span>`;
+        }
+        if (isExplored) {
+          badgeHTML += `<span class="state-badge badge-explored">${S.tagExplored}</span>`;
+        }
+        badgeSpan.innerHTML = badgeHTML;
+
+        // Accessible Names
+        let statusText = isExplored ? "explored" : S.tagUnexplored;
+        if (isSelected) statusText = "selected, " + statusText;
+
+        mockupBtn.setAttribute("aria-label", `${area.name}, ${statusText}`);
+
+        if (listBtn) {
+          let listBadge = "";
+          if (isSelected) listBadge += `[${S.tagSelected}] `;
+          if (isExplored) listBadge += `[${S.tagExplored}]`;
+          
+          listBtn.innerHTML = `<span>${area.name}</span> <span>${listBadge}</span>`;
+          listBtn.setAttribute("aria-label", `${area.name}, ${statusText}`);
+        }
+      });
+    }
+  </script>
+</body>
+</html>
