@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posting Schedule Builder</title>
+  
+  <!-- APPROVED FONTS (as required by system instructions) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/af/008a6d/00000000000000003b9b1287/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3">
+
+  <style>
+    /* ==========================================================================
+       CSS CUSTOM PROPERTIES (STRICT DESIGN SYSTEM PALETTE)
+       ========================================================================== */
+    :root {
+      /* Primary Palette */
+      --color-blue-0: #0074B9;
+      --color-blue-1: #00619A;
+      --color-blue-2: #2B8BC5;
+      --color-blue-3: #80B9DC;
+      --color-green-0: #32B34D;
+      --color-green-1: #1D8F35;
+      --color-green-2: #50C268;
+      --color-green-3: #7CD18E;
+      --color-black-0: #001725;
+      --color-black-1: #2B3E49;
+      --color-black-2: #808B92;
+      
+      /* Supporting Palette */
+      --color-bg-light: #F5F9FC;
+      --color-border-blue: #D0DFED;
+      --color-blue-dark: #055586;
+      --color-bg-gray: #EDF2F6;
+
+      /* Secondary Highlights (Non-text use only) */
+      --color-alert-red: #F14D5C;
+      --color-highlight-orange: #FC8905;
+      --color-highlight-yellow: #FCDE05;
+      --color-highlight-purple: #A778FD;
+      --color-highlight-cyan: #00BEFF;
+
+      /* Typography */
+      --font-heading: "azo-sans-web", "Roboto", sans-serif;
+      --font-body: "Roboto", Arial, sans-serif;
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      /* Allows every rem-based size below to scale gently with viewport width,
+         between a 320px phone and a 1440px desktop, without any sudden jumps. */
+      font-size: clamp(14px, 0.6vw + 12.5px, 16px);
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--color-black-0);
+      background-color: var(--color-bg-gray);
+      padding: clamp(8px, 3vw, 16px);
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: clamp(14px, 4vw, 24px);
+      border: 1px solid var(--color-border-blue);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Header & Intro */
+    header {
+      margin-bottom: clamp(16px, 4vw, 24px);
+      border-bottom: 2px solid var(--color-border-blue);
+      padding-bottom: 16px;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.3rem, 1rem + 2vw, 1.625rem);
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+
+    .scenario-intro {
+      font-size: clamp(0.9rem, 0.85rem + 0.3vw, 1rem);
+      color: var(--color-black-1);
+      line-height: 1.5;
+    }
+
+    /* Layout: reference panel and schedule column.
+       Stacked (reference above schedule) until there is enough width for
+       both to sit side by side without squeezing the day cards. */
+    .layout-columns {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 4vw, 24px);
+      align-items: start;
+    }
+
+    @media (min-width: 480px) {
+      .layout-columns {
+        grid-template-columns: minmax(150px, 200px) 1fr;
+      }
+    }
+
+    @media (min-width: 700px) {
+      .layout-columns {
+        grid-template-columns: minmax(200px, 260px) 1fr;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .layout-columns {
+        grid-template-columns: minmax(260px, 340px) 1fr;
+      }
+    }
+
+    .schedule-column {
+      min-width: 0;
+      /* The days-grid breakpoints below respond to this column's own
+         width (container queries), not the viewport. That matters here
+         because once the reference panel sits beside the schedule on
+         wide screens, this column is narrower than the full viewport,
+         so sizing the day cards off viewport width alone would cramp
+         them. */
+      container: schedule-col / inline-size;
+    }
+
+    /* Reference Panel */
+    .reference-panel {
+      background-color: var(--color-bg-light);
+      border: 1px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: clamp(10px, 3vw, 16px);
+      min-width: 0;
+      height: 100%;
+    }
+
+    .reference-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.125rem);
+      font-weight: 700;
+      color: var(--color-blue-dark);
+      margin-bottom: 12px;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+      gap: clamp(8px, 2vw, 12px);
+    }
+
+    .pillar-card-ref {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border-blue);
+      border-radius: 6px;
+      padding: clamp(10px, 2.5vw, 12px);
+      font-size: 0.875rem;
+      min-width: 0;
+    }
+
+    .pillar-card-header {
+      font-weight: 700;
+      color: var(--color-blue-1);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+      font-size: 0.9375rem;
+      flex-wrap: wrap;
+    }
+
+    .pillar-icon {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .pillar-desc {
+      color: var(--color-black-1);
+      margin-bottom: 6px;
+      overflow-wrap: break-word;
+    }
+
+    .pillar-example {
+      font-style: italic;
+      color: var(--color-black-2);
+      font-size: 0.8125rem;
+      overflow-wrap: break-word;
+    }
+
+    /* Status Bar & Reset */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--color-bg-light);
+      border: 1px solid var(--color-border-blue);
+      border-radius: 6px;
+      padding: clamp(10px, 3vw, 12px) clamp(12px, 3vw, 16px);
+      margin-bottom: clamp(16px, 4vw, 24px);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .counter-text {
+      font-size: clamp(0.9375rem, 0.85rem + 0.4vw, 1rem);
+      font-weight: 700;
+      color: var(--color-black-0);
+    }
+
+    .btn-reset {
+      font-family: var(--font-body);
+      font-size: clamp(0.9rem, 0.85rem + 0.3vw, 0.9375rem);
+      font-weight: 700;
+      color: #ffffff;
+      background-color: var(--color-blue-0);
+      border: 2px solid var(--color-blue-1);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      background-color: var(--color-blue-1);
+    }
+
+    .btn-reset:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+    }
+
+    /* Main Activity Layout */
+    .activity-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 4vw, 24px);
+    }
+
+    /* Schedule Grid */
+    .schedule-fieldset {
+      border: none;
+      padding: 0;
+      margin: 0;
+      min-width: 0;
+    }
+
+    .schedule-legend {
+      font-family: var(--font-heading);
+      font-size: clamp(1.1rem, 1rem + 0.6vw, 1.25rem);
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 16px;
+    }
+
+    /* Days grid: steps down gradually across several widths instead of one
+       abrupt jump, so tablets and landscape phones get a sensible column
+       count between the 2-column phone layout and the 7-column desktop
+       layout. auto-fit + minmax also lets it cope with unusual aspect
+       ratios rather than relying on a single fixed breakpoint. */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+      gap: clamp(10px, 2.5vw, 16px);
+      margin-bottom: clamp(16px, 4vw, 24px);
+    }
+
+    @container schedule-col (min-width: 440px) {
+      .days-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    }
+
+    @container schedule-col (min-width: 700px) {
+      .days-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    }
+
+    @container schedule-col (min-width: 900px) {
+      .days-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    }
+
+    @container schedule-col (min-width: 1040px) {
+      .days-grid { grid-template-columns: repeat(7, 1fr); }
+    }
+
+    .day-card {
+      background-color: #ffffff;
+      border: 2px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: clamp(10px, 2.5vw, 16px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .day-card.active-day {
+      border-color: var(--color-blue-0);
+      background-color: var(--color-bg-light);
+    }
+
+    .day-title {
+      font-family: var(--font-heading);
+      font-size: clamp(0.9375rem, 0.85rem + 0.5vw, 1rem);
+      font-weight: 700;
+      color: var(--color-black-0);
+      margin-bottom: 4px;
+      overflow-wrap: break-word;
+    }
+
+    .day-label {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-black-1);
+      margin-bottom: 6px;
+      display: block;
+      overflow-wrap: break-word;
+    }
+
+    .select-pillar {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: 0.9375rem;
+      color: var(--color-black-0);
+      background-color: #ffffff;
+      border: 2px solid var(--color-black-2);
+      border-radius: 6px;
+      padding: 8px 10px;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .select-pillar:focus-visible {
+      outline: 3px solid var(--color-black-0);
+      outline-offset: 2px;
+      border-color: var(--color-blue-0);
+    }
+
+    .pillar-indicator {
+      margin-top: 2px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background-color: transparent;
+    }
+
+    .pillar-indicator.active {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border-blue);
+    }
+
+    /* Feedback & Reflection Panel */
+    .feedback-panel {
+      background-color: var(--color-bg-light);
+      border: 2px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: clamp(14px, 4vw, 20px);
+      margin-top: 8px;
+      min-width: 0;
+    }
+
+    .feedback-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.125rem);
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--color-border-blue);
+    }
+
+    .feedback-text {
+      font-size: clamp(0.9375rem, 0.85rem + 0.4vw, 1rem);
+      color: var(--color-black-0);
+      margin-bottom: 8px;
+      line-height: 1.5;
+      overflow-wrap: break-word;
+    }
+
+    .feedback-extra {
+      font-size: clamp(0.9rem, 0.85rem + 0.3vw, 0.9375rem);
+      color: var(--color-blue-dark);
+      font-weight: 500;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background-color: #ffffff;
+      border-left: 4px solid var(--color-blue-2);
+      border-radius: 0 4px 4px 0;
+      overflow-wrap: break-word;
+    }
+
+    .takeaway-box {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--color-border-blue);
+      font-size: clamp(0.9rem, 0.85rem + 0.3vw, 0.9375rem);
+      font-weight: 700;
+      color: var(--color-green-1);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      overflow-wrap: break-word;
+    }
+
+    .takeaway-box svg { flex-shrink: 0; }
+
+    /* Accessibility Live Region */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Motion settings */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1 id="app-heading">Posting Schedule Builder</h1>
+      <p id="scenario-intro" class="scenario-intro"></p>
+    </header>
+
+    <div class="layout-columns">
+      <!-- Reference Section: Content Pillars -->
+      <section class="reference-panel" aria-label="Content Pillars Reference">
+        <h2 id="reference-heading" class="reference-title">Content Pillars Reference</h2>
+        <div id="pillars-reference" class="pillars-grid"></div>
+      </section>
+
+      <div class="schedule-column">
+        <!-- Status Bar & Reset -->
+        <div class="status-bar">
+          <div id="counter-display" class="counter-text" aria-live="polite">You are posting on 0 of 7 days.</div>
+          <button id="btn-reset" class="btn-reset" type="button">Reset week</button>
+        </div>
+
+        <!-- Screen Reader Live Announcer -->
+        <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- Main Grid Form -->
+        <main class="activity-layout">
+          <fieldset class="schedule-fieldset">
+            <legend class="schedule-legend">Weekly Schedule (Monday – Sunday)</legend>
+
+            <div id="days-grid" class="days-grid"></div>
+          </fieldset>
+
+          <!-- Feedback & Takeaway Panel -->
+          <section class="feedback-panel" aria-label="Feedback and Reflection">
+            <h2 id="feedback-heading" class="feedback-heading">Schedule Feedback</h2>
+            <div id="feedback-body" aria-live="polite">
+              <p id="feedback-main" class="feedback-text"></p>
+              <div id="feedback-extra" class="feedback-extra" style="display: none;"></div>
+            </div>
+            <div id="takeaway-box" class="takeaway-box"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       DATA ARCHITECTURE & SINGLE SOURCE OF TRUTH (BRITISH ENGLISH)
+       ========================================================================== */
+    const S = {
+      heading: "Posting Schedule Builder",
+      scenarioIntro: "Scenario: Maple Lane Bakery is a small neighbourhood bakery with one owner and about 3 hours a week to spend on TikTok. Build a realistic weekly posting schedule by choosing a content pillar for 3 to 5 days. Days left as 'No post' mean no video is published.",
+      referenceTitle: "Content Pillars Reference",
+      counterTemplate: "You are posting on {count} of 7 days.",
+      btnReset: "Reset week",
+      feedbackHeading: "Schedule Feedback",
+      takeawayText: "Consistency across a realistic number of days matters more than covering every pillar every week.",
+      noPostLabel: "No post",
+      
+      feedback0: "Pick 3 to 5 days to post. Your week is empty so far.",
+      feedback1to2: "That is a start, but 3 to 5 posts a week gives you a steadier rhythm. Consistency matters more than volume.",
+      feedback3to5: "Nice. 3 to 5 posts a week is a realistic rhythm for a small business. Posting 3 times a week, every week, beats posting 10 times one week and going quiet the next.",
+      feedback6to7: "That is a lot for one small team. Posting every day is hard to keep up and risks burnout. Try 3 to 5 days, and block time to batch-film.",
+      
+      extraSinglePillar: "Try mixing in a second pillar so your week does not feel repetitive.",
+      extraBalancedPillars: "Rotating 2 to 3 pillars is plenty. You do not need every pillar every week."
+    };
+
+    const PILLARS_DATA = [
+      {
+        id: "educational",
+        name: "Educational",
+        desc: "Tips and how-tos.",
+        example: "3 mistakes people make with sourdough",
+        iconSvg: `<svg class="pillar-icon" viewBox="0 0 24 24" fill="#0074B9" aria-hidden="true"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>`
+      },
+      {
+        id: "bts",
+        name: "Behind-the-scenes",
+        desc: "The day-to-day, the people, the process.",
+        example: "Opening the shop at 5am",
+        iconSvg: `<svg class="pillar-icon" viewBox="0 0 24 24" fill="#1D8F35" aria-hidden="true"><path d="M19 4h-4L13 2H11L9 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-7 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>`
+      },
+      {
+        id: "trends",
+        name: "Trends",
+        desc: "Joining a current trend or sound in your own voice.",
+        example: "A trending sound with a croissant reveal",
+        iconSvg: `<svg class="pillar-icon" viewBox="0 0 24 24" fill="#055586" aria-hidden="true"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>`
+      },
+      {
+        id: "ugc",
+        name: "UGC",
+        desc: "Reposting or featuring customer content.",
+        example: "A customer's own review video",
+        iconSvg: `<svg class="pillar-icon" viewBox="0 0 24 24" fill="#2B8BC5" aria-hidden="true"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+      },
+      {
+        id: "product",
+        name: "Product/offer",
+        desc: "Showing what the business sells.",
+        example: "A new seasonal pastry",
+        iconSvg: `<svg class="pillar-icon" viewBox="0 0 24 24" fill="#32B34D" aria-hidden="true"><path d="M12 2l-5.5 9h11z M12 22c-4.41 0-8-3.59-8-8 0-3.05 1.72-5.7 4.25-7l1.5 2.5C8.3 10.4 7 12.1 7 14c0 2.76 2.24 5 5 5s5-2.24 5-5c0-1.9-1.3-3.6-2.75-4.5l1.5-2.5c2.53 1.3 4.25 3.95 4.25 7 0 4.41-3.59 8-8 8z"/></svg>`
+      }
+    ];
+
+    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    /* ==========================================================================
+       STATE MANAGEMENT
+       ========================================================================== */
+    let scheduleState = {
+      Monday: "none",
+      Tuesday: "none",
+      Wednesday: "none",
+      Thursday: "none",
+      Friday: "none",
+      Saturday: "none",
+      Sunday: "none"
+    };
+
+    /* ==========================================================================
+       DOM CACHE & INITIALISATION
+       ========================================================================== */
+    const scenarioIntroEl = document.getElementById("scenario-intro");
+    const pillarsRefEl = document.getElementById("pillars-reference");
+    const counterDisplayEl = document.getElementById("counter-display");
+    const btnResetEl = document.getElementById("btn-reset");
+    const daysGridEl = document.getElementById("days-grid");
+    const feedbackMainEl = document.getElementById("feedback-main");
+    const feedbackExtraEl = document.getElementById("feedback-extra");
+    const takeawayBoxEl = document.getElementById("takeaway-box");
+    const srAnnouncerEl = document.getElementById("sr-announcer");
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initStaticContent();
+      renderPillarsReference();
+      renderDaysGrid();
+      btnResetEl.addEventListener("click", resetSchedule);
+      updateUI();
+    });
+
+    function initStaticContent() {
+      scenarioIntroEl.textContent = S.scenarioIntro;
+      btnResetEl.textContent = S.btnReset;
+      takeawayBoxEl.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg> <span>${S.takeawayText}</span>`;
+    }
+
+    function renderPillarsReference() {
+      pillarsRefEl.innerHTML = "";
+      PILLARS_DATA.forEach(pillar => {
+        const card = document.createElement("div");
+        card.className = "pillar-card-ref";
+        card.innerHTML = `
+          <div class="pillar-card-header">
+            ${pillar.iconSvg}
+            <span>${pillar.name}</span>
+          </div>
+          <div class="pillar-desc">${pillar.desc}</div>
+          <div class="pillar-example">Example: "${pillar.example}"</div>
+        `;
+        pillarsRefEl.appendChild(card);
+      });
+    }
+
+    function renderDaysGrid() {
+      daysGridEl.innerHTML = "";
+      DAYS.forEach(day => {
+        const card = document.createElement("div");
+        card.className = "day-card";
+        card.id = `card-${day.toLowerCase()}`;
+
+        const title = document.createElement("h3");
+        title.className = "day-title";
+        title.textContent = day;
+
+        const label = document.createElement("label");
+        label.className = "day-label";
+        label.htmlFor = `select-${day.toLowerCase()}`;
+        label.textContent = `Select pillar for ${day}`;
+
+        const select = document.createElement("select");
+        select.className = "select-pillar";
+        select.id = `select-${day.toLowerCase()}`;
+        select.dataset.day = day;
+
+        // Populate options
+        const defaultOpt = document.createElement("option");
+        defaultOpt.value = "none";
+        defaultOpt.textContent = S.noPostLabel;
+        select.appendChild(defaultOpt);
+
+        PILLARS_DATA.forEach(pillar => {
+          const opt = document.createElement("option");
+          opt.value = pillar.id;
+          opt.textContent = pillar.name;
+          select.appendChild(opt);
+        });
+
+        select.addEventListener("change", (e) => {
+          const selectedDay = e.target.dataset.day;
+          const selectedValue = e.target.value;
+          scheduleState[selectedDay] = selectedValue;
+          updateUI();
+          announceChange(selectedDay, selectedValue);
+        });
+
+        const indicator = document.createElement("div");
+        indicator.className = "pillar-indicator";
+        indicator.id = `indicator-${day.toLowerCase()}`;
+
+        card.appendChild(title);
+        card.appendChild(label);
+        card.appendChild(select);
+        card.appendChild(indicator);
+
+        daysGridEl.appendChild(card);
+      });
+    }
+
+    /* ==========================================================================
+       SCREEN READER ANNOUNCEMENTS
+       ========================================================================== */
+    function announce(msg) {
+      srAnnouncerEl.textContent = "";
+      setTimeout(() => {
+        srAnnouncerEl.textContent = msg;
+      }, 50);
+    }
+
+    function announceChange(day, pillarId) {
+      const pillar = PILLARS_DATA.find(p => p.id === pillarId);
+      const name = pillar ? pillar.name : S.noPostLabel;
+      announce(`${day} updated to ${name}.`);
+    }
+
+    /* ==========================================================================
+       RESET FUNCTION
+       ========================================================================== */
+    function resetSchedule() {
+      DAYS.forEach(day => {
+        scheduleState[day] = "none";
+        const select = document.getElementById(`select-${day.toLowerCase()}`);
+        if (select) select.value = "none";
+      });
+      updateUI();
+      announce("Schedule reset to empty.");
+    }
+
+    /* ==========================================================================
+       UI & FEEDBACK ENGINE
+       ========================================================================== */
+    function updateUI() {
+      let activeDaysCount = 0;
+      const usedPillars = new Set();
+
+      // 1. Update Days Cards Visuals & Counters
+      DAYS.forEach(day => {
+        const val = scheduleState[day];
+        const card = document.getElementById(`card-${day.toLowerCase()}`);
+        const indicator = document.getElementById(`indicator-${day.toLowerCase()}`);
+        const pillar = PILLARS_DATA.find(p => p.id === val);
+
+        if (val !== "none") {
+          activeDaysCount++;
+          usedPillars.add(val);
+          card.classList.add("active-day");
+          indicator.classList.add("active");
+          indicator.innerHTML = `${pillar.iconSvg} <span>${pillar.name}</span>`;
+        } else {
+          card.classList.remove("active-day");
+          indicator.classList.remove("active");
+          indicator.innerHTML = `<span>${S.noPostLabel}</span>`;
+        }
+      });
+
+      // 2. Update Counter Display
+      counterDisplayEl.textContent = S.counterTemplate.replace("{count}", activeDaysCount);
+
+      // 3. Calculate Primary & Extra Feedback Messages
+      let mainMsg = "";
+      let extraMsg = "";
+
+      if (activeDaysCount === 0) {
+        mainMsg = S.feedback0;
+      } else if (activeDaysCount >= 1 && activeDaysCount <= 2) {
+        mainMsg = S.feedback1to2;
+      } else if (activeDaysCount >= 3 && activeDaysCount <= 5) {
+        mainMsg = S.feedback3to5;
+        
+        // Check Pillar Variety for 3 to 5 days
+        if (usedPillars.size === 1) {
+          extraMsg = S.extraSinglePillar;
+        } else if (usedPillars.size >= 2 && usedPillars.size <= 3) {
+          extraMsg = S.extraBalancedPillars;
+        }
+      } else if (activeDaysCount >= 6 && activeDaysCount <= 7) {
+        mainMsg = S.feedback6to7;
+      }
+
+      feedbackMainEl.textContent = mainMsg;
+
+      if (extraMsg !== "") {
+        feedbackExtraEl.style.display = "block";
+        feedbackExtraEl.textContent = extraMsg;
+      } else {
+        feedbackExtraEl.style.display = "none";
+        feedbackExtraEl.textContent = "";
+      }
+    }
+  </script>
+</body>
+</html>
