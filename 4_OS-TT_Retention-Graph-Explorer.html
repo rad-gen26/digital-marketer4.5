@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Try it: click the numbered points</title>
+  
+  <!-- APPROVED FONTS CDN -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.typekit.net/af/008a6d/00000000000000003b9b1287/27/l?primer=7cdcb44be4a7db8877ffa5c0007b8dd865b3bbc383831fe2ea177f62257a9191&fvd=n7&v=3">
+
+  <style>
+    /* ==========================================================================
+       CSS CUSTOM PROPERTIES (STRICT CLOSED DESIGN SYSTEM PALETTE)
+       ========================================================================== */
+    :root {
+      /* Primary Palette */
+      --color-blue-0: #0074B9;
+      --color-blue-1: #00619A;
+      --color-blue-2: #2B8BC5;
+      --color-blue-3: #80B9DC;
+      --color-green-0: #32B34D;
+      --color-green-1: #1D8F35;
+      --color-green-2: #50C268;
+      --color-green-3: #7CD18E;
+      --color-black-0: #001725;
+      --color-black-1: #2B3E49;
+      --color-black-2: #808B92;
+
+      /* Supporting Palette */
+      --color-bg-light: #F5F9FC;
+      --color-border-blue: #D0DFED;
+      --color-blue-dark: #055586;
+      --color-bg-gray: #EDF2F6;
+
+      /* Secondary Palette (Highlights/Data Viz Only - Never Text) */
+      --color-alert-red: #F14D5C;
+      --color-highlight-orange: #FC8905;
+      --color-highlight-yellow: #FCDE05;
+      --color-highlight-purple: #A778FD;
+      --color-highlight-cyan: #00BEFF;
+
+      /* Typography */
+      --font-body: 'Roboto', Arial, sans-serif;
+      --font-heading: 'azo-sans-web', 'Roboto', sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Reset & Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--color-black-0);
+      background-color: var(--color-bg-gray);
+      padding: 12px;
+    }
+
+    .app-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid var(--color-border-blue);
+      box-shadow: 0 4px 12px rgba(0, 23, 37, 0.05);
+    }
+
+    header {
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 4px;
+    }
+
+    .instruction {
+      font-size: 15px;
+      color: var(--color-black-1);
+    }
+
+    /* Layout structure */
+    .activity-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    @media (min-width: 1100px) {
+      .activity-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Graph Container */
+    .graph-card {
+      background-color: #ffffff;
+      border: 1px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: 8px;
+      position: relative;
+    }
+
+    .svg-container {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* SVG Elements */
+    .grid-line {
+      stroke: var(--color-border-blue);
+      stroke-width: 1;
+    }
+
+    .axis-line {
+      stroke: var(--color-black-0);
+      stroke-width: 1.5;
+    }
+
+    .axis-label {
+      font-family: var(--font-body);
+      font-size: 13px;
+      fill: var(--color-black-0);
+    }
+
+    .axis-title {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: bold;
+      fill: var(--color-black-0);
+    }
+
+    .graph-title {
+      font-family: var(--font-heading);
+      font-size: 15px;
+      font-weight: 700;
+      fill: var(--color-black-0);
+      text-anchor: middle;
+    }
+
+    .data-line {
+      fill: none;
+      stroke: var(--color-blue-1);
+      stroke-width: 3.5;
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+    .data-point-dot {
+      fill: var(--color-blue-1);
+    }
+
+    .highlight-band {
+      fill: var(--color-highlight-orange);
+      opacity: 0.25;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Interactive Marker Buttons embedded via foreignObject */
+    .marker-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background-color: var(--color-blue-0);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 23, 37, 0.3);
+      transition: transform 0.2s ease, background-color 0.2s ease, border 0.2s ease;
+    }
+
+    .marker-btn:hover {
+      background-color: var(--color-blue-1);
+    }
+
+    .marker-btn:focus-visible {
+      outline: 3px solid var(--color-black-0) !important;
+      outline-offset: 2px !important;
+    }
+
+    .marker-btn.selected {
+      background-color: var(--color-highlight-orange);
+      color: var(--color-black-0);
+      border: 3px solid var(--color-black-0);
+      transform: scale(1.15);
+      border-radius: 4px; /* Shape change for Non-Visual / SC 1.4.1 */
+    }
+
+    .marker-btn.visited:not(.selected) {
+      background-color: var(--color-blue-2);
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-nav-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-step {
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 700;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background-color: var(--color-blue-0);
+      color: #ffffff;
+      border: 2px solid var(--color-blue-1);
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-step:hover:not(:disabled) {
+      background-color: var(--color-blue-1);
+    }
+
+    .btn-step:disabled {
+      background-color: var(--color-black-2);
+      border-color: var(--color-black-2);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-step:focus-visible {
+      outline: 3px solid var(--color-black-0) !important;
+      outline-offset: 2px !important;
+    }
+
+    .progress-status {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-black-0);
+    }
+
+    /* Information Panel */
+    .info-panel {
+      background-color: var(--color-bg-light);
+      border: 2px solid var(--color-border-blue);
+      border-radius: 8px;
+      padding: 12px 16px;
+      min-height: 110px;
+    }
+
+    .info-title {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--color-blue-0);
+      margin-bottom: 4px;
+    }
+
+    .info-body {
+      font-size: 15px;
+      color: var(--color-black-0);
+      line-height: 1.45;
+    }
+
+    .completion-banner {
+      margin-top: 8px;
+      font-weight: 700;
+      color: var(--color-green-1);
+      font-size: 14px;
+    }
+
+    /* Data Table Details */
+    details {
+      margin-top: 12px;
+      background-color: #ffffff;
+      border: 1px solid var(--color-border-blue);
+      border-radius: 6px;
+      padding: 8px 12px;
+    }
+
+    summary {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--color-blue-0);
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    summary:focus-visible {
+      outline: 3px solid var(--color-black-0) !important;
+      outline-offset: 2px !important;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--color-border-blue);
+      padding: 6px 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--color-bg-light);
+      font-weight: 700;
+      color: var(--color-black-0);
+    }
+
+    /* Screen Reader Only Utility */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Prefers Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1 id="app-title"></h1>
+      <p id="app-instruction" class="instruction"></p>
+    </header>
+
+    <div class="activity-layout">
+      <!-- SVG Graph Card -->
+      <section class="graph-card" aria-label="Interactive Graph View">
+        <svg class="svg-container" viewBox="0 0 700 340" role="img" aria-labelledby="svg-title-node svg-desc-node">
+          <title id="svg-title-node"></title>
+          <desc id="svg-desc-node"></desc>
+
+          <!-- Graph Title -->
+          <text x="350" y="24" class="graph-title" id="svg-graph-title-text"></text>
+
+          <!-- Highlight Band (Dynamic Shaded Section) -->
+          <polygon id="highlight-band" class="highlight-band" points="0,0 0,0 0,0 0,0" style="display:none;" />
+
+          <!-- Grid Lines (Y-Axis) -->
+          <!-- Y=100% (y=40) -->
+          <line x1="70" y1="40" x2="670" y2="40" class="grid-line" />
+          <text x="60" y="44" class="axis-label" text-anchor="end">100</text>
+
+          <!-- Y=80% (y=88) -->
+          <line x1="70" y1="88" x2="670" y2="88" class="grid-line" />
+          <text x="60" y="92" class="axis-label" text-anchor="end">80</text>
+
+          <!-- Y=60% (y=136) -->
+          <line x1="70" y1="136" x2="670" y2="136" class="grid-line" />
+          <text x="60" y="140" class="axis-label" text-anchor="end">60</text>
+
+          <!-- Y=40% (y=184) -->
+          <line x1="70" y1="184" x2="670" y2="184" class="grid-line" />
+          <text x="60" y="188" class="axis-label" text-anchor="end">40</text>
+
+          <!-- Y=20% (y=232) -->
+          <line x1="70" y1="232" x2="670" y2="232" class="grid-line" />
+          <text x="60" y="236" class="axis-label" text-anchor="end">20</text>
+
+          <!-- Y=0% (y=280) -->
+          <line x1="70" y1="280" x2="670" y2="280" class="axis-line" />
+          <text x="60" y="284" class="axis-label" text-anchor="end">0</text>
+
+          <!-- Grid Lines (X-Axis) & Labels -->
+          <!-- X=0 (x=70) -->
+          <line x1="70" y1="40" x2="70" y2="280" class="axis-line" />
+          <text x="70" y="298" class="axis-label" text-anchor="middle">0</text>
+
+          <!-- X=5 (x=145) -->
+          <line x1="145" y1="40" x2="145" y2="280" class="grid-line" />
+          <text x="145" y="298" class="axis-label" text-anchor="middle">5</text>
+
+          <!-- X=10 (x=220) -->
+          <line x1="220" y1="40" x2="220" y2="280" class="grid-line" />
+          <text x="220" y="298" class="axis-label" text-anchor="middle">10</text>
+
+          <!-- X=15 (x=295) -->
+          <line x1="295" y1="40" x2="295" y2="280" class="grid-line" />
+          <text x="295" y="298" class="axis-label" text-anchor="middle">15</text>
+
+          <!-- X=20 (x=370) -->
+          <line x1="370" y1="40" x2="370" y2="280" class="grid-line" />
+          <text x="370" y="298" class="axis-label" text-anchor="middle">20</text>
+
+          <!-- X=25 (x=445) -->
+          <line x1="445" y1="40" x2="445" y2="280" class="grid-line" />
+          <text x="445" y="298" class="axis-label" text-anchor="middle">25</text>
+
+          <!-- X=30 (x=520) -->
+          <line x1="520" y1="40" x2="520" y2="280" class="grid-line" />
+          <text x="520" y="298" class="axis-label" text-anchor="middle">30</text>
+
+          <!-- X=35 (x=595) -->
+          <line x1="595" y1="40" x2="595" y2="280" class="grid-line" />
+          <text x="595" y="298" class="axis-label" text-anchor="middle">35</text>
+
+          <!-- X=40 (x=670) -->
+          <line x1="670" y1="40" x2="670" y2="280" class="grid-line" />
+          <text x="670" y="298" class="axis-label" text-anchor="middle">40</text>
+
+          <!-- Axis Titles -->
+          <text x="370" y="328" class="axis-title" text-anchor="middle" id="x-axis-title-text"></text>
+          <text x="20" y="160" class="axis-title" text-anchor="middle" transform="rotate(-90 20 160)" id="y-axis-title-text"></text>
+
+          <!-- Polyline connecting data points -->
+          <!-- P0(70, 40), P1(115, 131.2), P2(295, 148), P3(340, 196), P4(580, 200.8), P5(670, 212.8) -->
+          <polyline class="data-line" points="70,40 115,131.2 295,148 340,196 580,200.8 670,212.8" />
+
+          <!-- Solid Data Dots -->
+          <circle cx="70" cy="40" r="4.5" class="data-point-dot" />
+          <circle cx="115" cy="131.2" r="4.5" class="data-point-dot" />
+          <circle cx="295" cy="148" r="4.5" class="data-point-dot" />
+          <circle cx="340" cy="196" r="4.5" class="data-point-dot" />
+          <circle cx="580" cy="200.8" r="4.5" class="data-point-dot" />
+          <circle cx="670" cy="212.8" r="4.5" class="data-point-dot" />
+
+          <!-- Interactive Marker Buttons via foreignObject -->
+          <!-- Marker 1: Mid of 0-3s -> x=92.5, y=85.6 -->
+          <foreignObject x="75.5" y="68.6" width="34" height="34">
+            <button id="marker-1" class="marker-btn" type="button" aria-label="Point 1: 0:00 to 0:03, the hook">1</button>
+          </foreignObject>
+
+          <!-- Marker 2: Mid of 15-18s -> x=317.5, y=172 -->
+          <foreignObject x="300.5" y="155" width="34" height="34">
+            <button id="marker-2" class="marker-btn" type="button" aria-label="Point 2: 0:15 to 0:18, a cliff">2</button>
+          </foreignObject>
+
+          <!-- Marker 3: Mid of 18-34s -> x=460, y=198.4 -->
+          <foreignObject x="443" y="181.4" width="34" height="34">
+            <button id="marker-3" class="marker-btn" type="button" aria-label="Point 3: 0:18 to 0:34, a flat section">3</button>
+          </foreignObject>
+
+          <!-- Marker 4: Mid of 34-40s -> x=625, y=206.8 -->
+          <foreignObject x="608" y="189.8" width="34" height="34">
+            <button id="marker-4" class="marker-btn" type="button" aria-label="Point 4: 0:34 to 0:40, the end">4</button>
+          </foreignObject>
+        </svg>
+
+        <!-- Controls Bar below graph -->
+        <div class="controls-bar">
+          <div class="btn-nav-group">
+            <button id="btn-prev" class="btn-step" type="button" disabled>Previous point</button>
+            <button id="btn-next" class="btn-step" type="button">Next point</button>
+          </div>
+          <div id="progress-display" class="progress-status">Points viewed: 0 of 4</div>
+        </div>
+      </section>
+
+      <!-- Information Panel -->
+      <section class="info-panel" aria-label="Point Description Panel">
+        <div id="aria-live-panel" aria-live="polite">
+          <h2 id="panel-title" class="info-title"></h2>
+          <p id="panel-body" class="info-body"></p>
+          <div id="completion-banner" class="completion-banner" style="display: none;"></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- View Data as Table Collapsible Section -->
+    <details>
+      <summary id="table-summary-title">View data as a table</summary>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col" id="th-time">Time (seconds)</th>
+            <th scope="col" id="th-viewers">Viewers still watching (%)</th>
+          </tr>
+        </thead>
+        <tbody id="data-table-body">
+        </tbody>
+      </table>
+    </details>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       SINGLE STRING ARCHITECTURE & SCENARIO DATA (BRITISH ENGLISH)
+       ========================================================================== */
+    const S = {
+      title: "Try it: click the numbered points",
+      instruction: "Select each numbered point on the graph to see what it suggests.",
+      graphTitle: "Viewers still watching at each second (40-second video)",
+      xAxisTitle: "Time in the video (seconds)",
+      yAxisTitle: "Viewers still watching (%)",
+      svgTitle: "Retention Graph for 40-second video",
+      svgDesc: "Line graph of a 40-second video. It drops to about 62% by 3 seconds, declines to about 55% by 15 seconds, falls sharply to about 35% by 18 seconds, stays almost flat until 34 seconds, and ends at about 28%.",
+      btnPrev: "Previous point",
+      btnNext: "Next point",
+      progressTemplate: "Points viewed: {count} of 4",
+      completionText: "Well done. You have looked at every point.",
+      tableSummary: "View data as a table",
+      tableThTime: "Time (seconds)",
+      tableThViewers: "Viewers still watching (%)",
+      defaultPanelTitle: "Graph Explorer",
+      defaultPanelBody: "Select a numbered point to see what it suggests."
+    };
+
+    const POINTS_DATA = [
+      {
+        id: 1,
+        markerLabel: "Point 1: 0:00 to 0:03, the hook",
+        title: "0:00 to 0:03, the hook",
+        text: "About 38% of viewers left in the first 3 seconds. That is normal to some extent, but the opening decides how many stay. A stronger first line or image could keep more people.",
+        xStart: 70,   // sec 0
+        xEnd: 115,    // sec 3
+        polyPoints: "70,280 70,40 115,131.2 115,280"
+      },
+      {
+        id: 2,
+        markerLabel: "Point 2: 0:15 to 0:18, a cliff",
+        title: "0:15 to 0:18, a cliff",
+        text: "The line falls from about 55% to 35% in three seconds. Something at this moment lost people. Watch the video here and ask what changed: a cut, a pause, a new topic?",
+        xStart: 295,  // sec 15
+        xEnd: 340,    // sec 18
+        polyPoints: "295,280 295,148 340,196 340,280"
+      },
+      {
+        id: 3,
+        markerLabel: "Point 3: 0:18 to 0:34, a flat section",
+        title: "0:18 to 0:34, a flat section",
+        text: "The line barely moves. This section is not losing viewers. The line is flatter partly because only the most interested viewers are left by now.",
+        xStart: 340,  // sec 18
+        xEnd: 580,    // sec 34
+        polyPoints: "340,280 340,196 580,200.8 580,280"
+      },
+      {
+        id: 4,
+        markerLabel: "Point 4: 0:34 to 0:40, the end",
+        title: "0:34 to 0:40, the end",
+        text: "Around 28% watched to the end. Check whether your call to action is short and clear, and whether it comes at a point where viewers are still there.",
+        xStart: 580,  // sec 34
+        xEnd: 670,    // sec 40
+        polyPoints: "580,280 580,200.8 670,212.8 670,280"
+      }
+    ];
+
+    const TABLE_DATA = [
+      { time: 0, pct: 100 },
+      { time: 3, pct: 62 },
+      { time: 15, pct: 55 },
+      { time: 18, pct: 35 },
+      { time: 34, pct: 33 },
+      { time: 40, pct: 28 }
+    ];
+
+    /* ==========================================================================
+       STATE MANAGEMENT
+       ========================================================================== */
+    let selectedPointId = null; // 1, 2, 3, 4 or null
+    const visitedPoints = new Set();
+
+    /* ==========================================================================
+       DOM CACHE & INITIALISATION
+       ========================================================================== */
+    const DOM = {};
+
+    function cacheDOM() {
+      DOM.appTitle = document.getElementById("app-title");
+      DOM.appInstruction = document.getElementById("app-instruction");
+      DOM.svgTitleNode = document.getElementById("svg-title-node");
+      DOM.svgDescNode = document.getElementById("svg-desc-node");
+      DOM.svgGraphTitleText = document.getElementById("svg-graph-title-text");
+      DOM.xAxisTitleText = document.getElementById("x-axis-title-text");
+      DOM.yAxisTitleText = document.getElementById("y-axis-title-text");
+      DOM.highlightBand = document.getElementById("highlight-band");
+
+      DOM.btnPrev = document.getElementById("btn-prev");
+      DOM.btnNext = document.getElementById("btn-next");
+      DOM.progressDisplay = document.getElementById("progress-display");
+
+      DOM.panelTitle = document.getElementById("panel-title");
+      DOM.panelBody = document.getElementById("panel-body");
+      DOM.completionBanner = document.getElementById("completion-banner");
+
+      DOM.tableSummaryTitle = document.getElementById("table-summary-title");
+      DOM.thTime = document.getElementById("th-time");
+      DOM.thViewers = document.getElementById("th-viewers");
+      DOM.dataTableBody = document.getElementById("data-table-body");
+
+      DOM.markers = [
+        document.getElementById("marker-1"),
+        document.getElementById("marker-2"),
+        document.getElementById("marker-3"),
+        document.getElementById("marker-4")
+      ];
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      cacheDOM();
+      initStaticContent();
+      bindEvents();
+      renderUI();
+    });
+
+    function initStaticContent() {
+      DOM.appTitle.textContent = S.title;
+      DOM.appInstruction.textContent = S.instruction;
+      DOM.svgTitleNode.textContent = S.svgTitle;
+      DOM.svgDescNode.textContent = S.svgDesc;
+      DOM.svgGraphTitleText.textContent = S.graphTitle;
+      DOM.xAxisTitleText.textContent = S.xAxisTitle;
+      DOM.yAxisTitleText.textContent = S.yAxisTitle;
+
+      DOM.btnPrev.textContent = S.btnPrev;
+      DOM.btnNext.textContent = S.btnNext;
+
+      DOM.tableSummaryTitle.textContent = S.tableSummary;
+      DOM.thTime.textContent = S.tableThTime;
+      DOM.thViewers.textContent = S.tableThViewers;
+
+      DOM.panelTitle.textContent = S.defaultPanelTitle;
+      DOM.panelBody.textContent = S.defaultPanelBody;
+
+      // Populate Table
+      DOM.dataTableBody.innerHTML = "";
+      TABLE_DATA.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${row.time}</td><td>${row.pct}</td>`;
+        DOM.dataTableBody.appendChild(tr);
+      });
+    }
+
+    function bindEvents() {
+      DOM.markers.forEach((btn, index) => {
+        btn.addEventListener("click", () => selectPoint(index + 1));
+      });
+
+      DOM.btnPrev.addEventListener("click", () => {
+        if (selectedPointId === null) {
+          selectPoint(1);
+        } else if (selectedPointId > 1) {
+          selectPoint(selectedPointId - 1);
+        }
+      });
+
+      DOM.btnNext.addEventListener("click", () => {
+        if (selectedPointId === null) {
+          selectPoint(1);
+        } else if (selectedPointId < 4) {
+          selectPoint(selectedPointId + 1);
+        }
+      });
+    }
+
+    /* ==========================================================================
+       INTERACTION LOGIC
+       ========================================================================== */
+    function selectPoint(pointId) {
+      selectedPointId = pointId;
+      visitedPoints.add(pointId);
+      renderUI();
+    }
+
+    /* ==========================================================================
+       UI RENDER ENGINE
+       ========================================================================== */
+    function renderUI() {
+      // Update Markers state
+      DOM.markers.forEach((btn, index) => {
+        const pId = index + 1;
+        const isSelected = (selectedPointId === pId);
+        const isVisited = visitedPoints.has(pId);
+
+        if (isSelected) {
+          btn.classList.add("selected");
+          btn.classList.remove("visited");
+        } else {
+          btn.classList.remove("selected");
+          if (isVisited) {
+            btn.classList.add("visited");
+          } else {
+            btn.classList.remove("visited");
+          }
+        }
+      });
+
+      // Update Navigation Buttons
+      if (selectedPointId === null) {
+        DOM.btnPrev.disabled = true;
+        DOM.btnNext.disabled = false;
+      } else {
+        DOM.btnPrev.disabled = (selectedPointId === 1);
+        DOM.btnNext.disabled = (selectedPointId === 4);
+      }
+
+      // Update Highlight Band & Panel Text
+      if (selectedPointId !== null) {
+        const pointData = POINTS_DATA.find(p => p.id === selectedPointId);
+        DOM.highlightBand.setAttribute("points", pointData.polyPoints);
+        DOM.highlightBand.style.display = "block";
+
+        DOM.panelTitle.textContent = pointData.title;
+        DOM.panelBody.textContent = pointData.text;
+      } else {
+        DOM.highlightBand.style.display = "none";
+        DOM.panelTitle.textContent = S.defaultPanelTitle;
+        DOM.panelBody.textContent = S.defaultPanelBody;
+      }
+
+      // Update Progress Display
+      const count = visitedPoints.size;
+      DOM.progressDisplay.textContent = S.progressTemplate.replace("{count}", count);
+
+      // Update Completion Banner
+      if (count === 4) {
+        DOM.completionBanner.style.display = "block";
+        DOM.completionBanner.textContent = S.completionText;
+      } else {
+        DOM.completionBanner.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
